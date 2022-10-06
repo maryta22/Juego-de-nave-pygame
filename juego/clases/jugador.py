@@ -5,6 +5,7 @@ class Nave(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.imagenNave = pygame.image.load("juego/imagenes/nave.png")
+        self.imagenExplota = pygame.image.load("juego/imagenes/naveExplota.png")
         #tomamos rextangulo imagen
         self.rect = self.imagenNave.get_rect()
         #posicion inicial nave
@@ -24,9 +25,13 @@ class Nave(pygame.sprite.Sprite):
                 self.rect.right = 490
 
     def disparar(self, x, y):
-        misil = disparo.Misil(x, y)
-        self.listaDisparo.append(misil)
-        self.sonidoDisparo.play()
+        if self.vida == True:
+            misil = disparo.Misil(x, y)
+            self.listaDisparo.append(misil)
+            self.sonidoDisparo.play()
 
     def dibujar(self, superficie):
-        superficie.blit(self.imagenNave, self.rect)
+        if self.vida == True:
+            superficie.blit(self.imagenNave, self.rect)
+        else:
+            superficie.blit(self.imagenExplota , self.rect)

@@ -9,6 +9,10 @@ from clases import jugador
 from clases import asteroide
 from random import randint
 import time
+
+
+pygame.init()
+
 #variables
 ANCHO = 480
 ALTO = 700
@@ -39,8 +43,13 @@ def cargarAsteroides(x,y):
     meteoro = asteroide.Asteroide(x,y)
     listaAsteroide.append(meteoro)
 
+def gameOver():
+    global jugando
+    jugando = False
+    for meteritos in listaAsteroide:
+        listaAsteroide.remove(meteritos)
+
 def meteoritos():
-    pygame.init()
     ventana = pygame.display.set_mode((ANCHO, ALTO))
     #imagen de fondo
     fondo = pygame.image.load("juego/imagenes/fondo.png")
@@ -68,17 +77,17 @@ def meteoritos():
         #comprobamos lista asteroides
         if len(listaAsteroide)> 0:
             for x in listaAsteroide:
-                x.dibujar(ventana)
-                x.recorrido()
-                if x.rect.top > 700:
-                    listaAsteroide.remove(x)
-                else:
-                    if x.rect.colliderect(nave.rect):
+                if jugando == True: 
+                    x.dibujar(ventana)
+                    x.recorrido()
+                    if x.rect.top > 700:
                         listaAsteroide.remove(x)
-                        sonidoColision.play()
-                        puntos += 1
-                        print("colision")
-                        #ameover()
+                    else:
+                        if x.rect.colliderect(nave.rect):
+                            listaAsteroide.remove(x)
+                            sonidoColision.play()
+                            nave.vida = False
+                            gameOver()
 
         #Disparo de proyectil
         if len(nave.listaDisparo)>0:
@@ -90,6 +99,7 @@ def meteoritos():
                 else:
                     for meteoritos in listaAsteroide:
                         if x.rect.colliderect(meteoritos.rect):
+                            puntos += 1
                             listaAsteroide.remove(meteoritos)
 
         nave.mover()
@@ -101,13 +111,14 @@ def meteoritos():
                 pygame.quit()
                 sys.exit()
             elif evento.type == pygame.KEYDOWN:
-                if evento.key == K_LEFT:
-                    nave.rect.left -= nave.velocidad
-                elif evento.key == K_RIGHT:
-                    nave.rect.right += nave.velocidad
-                elif evento.key == K_SPACE:
-                    x,y = nave.rect.center
-                    nave.disparar(x,y)
+                if jugando == True:
+                    if evento.key == K_LEFT:
+                        nave.rect.left -= nave.velocidad
+                    elif evento.key == K_RIGHT:
+                        nave.rect.right += nave.velocidad
+                    elif evento.key == K_SPACE:
+                        x,y = nave.rect.center
+                        nave.disparar(x,y)
 
         if jugando == False:
             FuenteGameOver = pygame.font.SysFont("Arial", 40)
